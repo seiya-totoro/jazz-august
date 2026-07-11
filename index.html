@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SwingBeans 8月 出席・曲管理</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">August practice notes</p>
+        <h1>SwingBeans 8月メモ</h1>
+      </div>
+      <div class="sync-card" id="syncCard">
+        <span class="sync-dot"></span>
+        <span id="syncText">読み込み中</span>
+      </div>
+    </header>
+
+    <nav class="main-tabs" aria-label="画面切り替え">
+      <button class="tab is-active" data-view="home">ホーム</button>
+      <button class="tab" data-view="attendance">出席入力</button>
+      <button class="tab" data-view="songs">曲メンバー</button>
+      <button class="tab" data-view="thursdays">木曜一覧</button>
+    </nav>
+
+    <main>
+      <section id="home" class="view is-active" aria-labelledby="homeTitle">
+        <div class="night-board">
+          <div>
+            <p class="eyebrow">next thursday</p>
+            <h2 id="homeTitle">近い練習日</h2>
+            <p class="soft-text" id="homeDateText">読み込み中...</p>
+          </div>
+          <div class="moon-mark" aria-hidden="true"></div>
+        </div>
+
+        <div class="home-grid">
+          <section class="paper-panel warm-panel">
+            <h3>今日のおすすめ練習曲</h3>
+            <div id="homeSongs" class="song-picks"></div>
+          </section>
+          <section class="paper-panel">
+            <h3>未入力の人へ</h3>
+            <p class="soft-text" id="homePendingText">読み込み中...</p>
+            <div id="homePendingMembers" class="member-lines compact"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="attendance" class="view" aria-labelledby="attendanceTitle">
+        <div class="paper-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">your plan</p>
+              <h2 id="attendanceTitle">出席入力</h2>
+            </div>
+            <span class="save-note" id="attendanceSaveNote"></span>
+          </div>
+          <label class="field-label" for="memberSelect">自分の名前</label>
+          <select id="memberSelect" class="select"></select>
+          <p class="legend-text">◎=参加 / ○=一部参加(0.1) / △=未確定・かなり短時間 / ×=欠席</p>
+          <div id="attendanceRows" class="attendance-list"></div>
+        </div>
+      </section>
+
+      <section id="songs" class="view" aria-labelledby="songsTitle">
+        <div class="paper-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">song members</p>
+              <h2 id="songsTitle">曲メンバー</h2>
+            </div>
+            <span class="save-note" id="songSaveNote"></span>
+          </div>
+          <p class="soft-text">行がメンバー、列が曲です。参加する曲を押して切り替えます。</p>
+          <div class="matrix-wrap">
+            <div id="songMatrix" class="song-matrix"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="thursdays" class="view" aria-labelledby="thursdayTitle">
+        <div class="paper-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">thursday list</p>
+              <h2 id="thursdayTitle">木曜一覧</h2>
+            </div>
+          </div>
+          <label class="field-label" for="dateSelect">見る日</label>
+          <select id="dateSelect" class="select"></select>
+          <div class="thursday-layout">
+            <section>
+              <h3>曲ごとの人数</h3>
+              <div id="songCounts" class="song-counts"></div>
+            </section>
+            <section class="memo-box">
+              <h3>ランキング 1位〜2位</h3>
+              <div id="rankingList" class="rank-list"></div>
+            </section>
+            <section class="memo-box">
+              <h3>注目曲</h3>
+              <p class="soft-text">参加可能日数が2日以下のメンバーが来る日</p>
+              <div id="focusList" class="focus-list"></div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="loading" class="loading is-active">
+    <div class="loading-card">
+      <div class="loader-line"></div>
+      <p>読み込み中...</p>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="./firebase-config.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
