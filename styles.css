@@ -92,41 +92,6 @@ h3 {
   font-size: 1.08rem;
 }
 
-.sync-card {
-  justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 8px 12px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: rgba(255, 250, 240, .78);
-  color: var(--muted);
-  font-size: .88rem;
-  font-weight: 700;
-}
-
-.sync-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  background: var(--yellow);
-  box-shadow: 0 0 0 4px rgba(233, 196, 106, .16);
-}
-
-.sync-card.is-online .sync-dot {
-  background: #6f8f72;
-}
-
-.sync-card.is-local .sync-dot {
-  background: #a98a4b;
-}
-
-.sync-card.is-error .sync-dot {
-  background: #b65b52;
-}
-
 .main-tabs {
   position: sticky;
   top: 0;
@@ -206,8 +171,7 @@ h3 {
   box-shadow: inset -12px 4px 0 rgba(39, 56, 88, .2);
 }
 
-.home-grid,
-.thursday-layout {
+.home-grid {
   display: grid;
   gap: 14px;
 }
@@ -436,6 +400,109 @@ h3 {
   background: rgba(255, 255, 255, .38);
 }
 
+.date-rankings {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.date-rank-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .48), rgba(255, 255, 255, .08)),
+    rgba(255, 255, 255, .32);
+}
+
+.date-rank-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.date-rank-title {
+  color: var(--navy);
+  font-size: 1.2rem;
+  font-weight: 950;
+}
+
+.date-rank-total {
+  color: var(--muted);
+  font-size: .9rem;
+  font-weight: 800;
+}
+
+.date-song-list {
+  display: grid;
+  gap: 8px;
+}
+
+.date-song-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid rgba(39, 56, 88, .12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .34);
+}
+
+.date-song-row.is-first {
+  border-color: rgba(39, 56, 88, .34);
+  background: linear-gradient(135deg, rgba(39, 56, 88, .95), rgba(52, 70, 108, .9));
+  color: #fff7df;
+}
+
+.date-song-row.is-second {
+  border-color: rgba(233, 196, 106, .75);
+  background: linear-gradient(135deg, rgba(255, 240, 189, .96), rgba(255, 250, 240, .72));
+}
+
+.date-song-row.is-first .song-name,
+.date-song-row.is-first .soft-text {
+  color: #fff7df;
+}
+
+.date-song-row.is-second .song-name {
+  color: #7b5b11;
+}
+
+.date-rank-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 42px;
+  min-height: 32px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(39, 56, 88, .08);
+  color: var(--navy);
+  font-weight: 950;
+}
+
+.date-song-row.is-first .date-rank-badge {
+  background: rgba(255, 247, 223, .18);
+  color: #fff7df;
+}
+
+.date-song-row.is-second .date-rank-badge {
+  background: #fff;
+  color: #7b5b11;
+}
+
+.date-focus {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(255, 240, 189, .45);
+  color: #7b5b11;
+}
+
 .rank-item {
   display: flex;
   align-items: center;
@@ -575,13 +642,8 @@ h3 {
     grid-template-columns: 1fr auto;
   }
 
-  .home-grid,
-  .thursday-layout {
+  .home-grid {
     grid-template-columns: minmax(0, 1fr) minmax(280px, .85fr);
-  }
-
-  .thursday-layout section:first-child {
-    grid-row: span 2;
   }
 
   .attendance-row {

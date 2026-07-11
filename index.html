@@ -13,25 +13,21 @@
         <p class="eyebrow">August practice notes</p>
         <h1>SwingBeans 8月メモ</h1>
       </div>
-      <div class="sync-card" id="syncCard">
-        <span class="sync-dot"></span>
-        <span id="syncText">読み込み中</span>
-      </div>
     </header>
 
     <nav class="main-tabs" aria-label="画面切り替え">
       <button class="tab is-active" data-view="home">ホーム</button>
       <button class="tab" data-view="attendance">出席入力</button>
       <button class="tab" data-view="songs">曲メンバー</button>
-      <button class="tab" data-view="thursdays">木曜一覧</button>
+      <button class="tab" data-view="thursdays">日程一覧</button>
     </nav>
 
     <main>
       <section id="home" class="view is-active" aria-labelledby="homeTitle">
         <div class="night-board">
           <div>
-            <p class="eyebrow">next thursday</p>
-            <h2 id="homeTitle">近い練習日</h2>
+            <p class="eyebrow">next day</p>
+            <h2 id="homeTitle">近い候補日</h2>
             <p class="soft-text" id="homeDateText">読み込み中...</p>
           </div>
           <div class="moon-mark" aria-hidden="true"></div>
@@ -75,7 +71,7 @@
             </div>
             <span class="save-note" id="songSaveNote"></span>
           </div>
-          <p class="soft-text">行がメンバー、列が曲です。参加する曲を押して切り替えます。</p>
+          <p class="soft-text">参加する曲を押して切り替えます。</p>
           <div class="matrix-wrap">
             <div id="songMatrix" class="song-matrix"></div>
           </div>
@@ -86,27 +82,12 @@
         <div class="paper-panel">
           <div class="panel-head">
             <div>
-              <p class="eyebrow">thursday list</p>
-              <h2 id="thursdayTitle">木曜一覧</h2>
+              <p class="eyebrow">date list</p>
+              <h2 id="thursdayTitle">日程一覧</h2>
             </div>
           </div>
-          <label class="field-label" for="dateSelect">見る日</label>
-          <select id="dateSelect" class="select"></select>
-          <div class="thursday-layout">
-            <section>
-              <h3>曲ごとの人数</h3>
-              <div id="songCounts" class="song-counts"></div>
-            </section>
-            <section class="memo-box">
-              <h3>ランキング 1位〜2位</h3>
-              <div id="rankingList" class="rank-list"></div>
-            </section>
-            <section class="memo-box">
-              <h3>注目曲</h3>
-              <p class="soft-text">参加可能日数が2日以下のメンバーが来る日</p>
-              <div id="focusList" class="focus-list"></div>
-            </section>
-          </div>
+          <p class="soft-text">8月の各日について、参加率が高い曲順に並べます。1位と2位は色を変えて目立たせています。</p>
+          <div id="dateRankings" class="date-rankings"></div>
         </div>
       </section>
     </main>

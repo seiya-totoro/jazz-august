@@ -44,12 +44,7 @@ const seedData = {
     { id: 'M29', name: 'member29', part: '' },
     { id: 'M30', name: 'member30', part: '' },
   ],
-  dates: [
-    { id: 'D1', label: '8/6(木)', iso: '2026-08-06' },
-    { id: 'D2', label: '8/13(木)', iso: '2026-08-13' },
-    { id: 'D3', label: '8/20(木)', iso: '2026-08-20' },
-    { id: 'D4', label: '8/27(木)', iso: '2026-08-27' },
-  ],
+  dates: createAugustDates(),
   songs: [
     { id: 'S1', title: 'moanin!' },
     { id: 'S2', title: 'シロクマ' },
@@ -103,7 +98,6 @@ async function createStore() {
       return await createFirebaseStore(config);
     } catch (error) {
       console.warn(error);
-      setSync('Firebase接続に失敗、ローカル保存で起動中', 'error');
     }
   }
   return createLocalStore();
@@ -118,8 +112,16 @@ async function createFirebaseStore(config) {
   const snapshot = await dbModule.get(rootRef);
   if (!snapshot.exists()) {
     await dbModule.set(rootRef, seedData);
+  } else {
+    const saved = snapshot.val() || {};
+    if (!Array.isArray(saved.dates) || saved.dates.length !== seedData.dates.length) {
+      await dbModule.update(rootRef, {
+        members: seedData.members,
+        dates: seedData.dates,
+        songs: seedData.songs,
+      });
+    }
   }
-  setSync('Firebaseで同期中', 'online');
   return {
     subscribe(callback) {
       return dbModule.onValue(rootRef, (snap) => callback(snap.val() || seedData));
@@ -134,7 +136,6 @@ function createLocalStore() {
   const saved = localStorage.getItem(LOCAL_KEY);
   let localState = normalizeState(saved ? JSON.parse(saved) : seedData);
   const listeners = new Set();
-  setSync('ローカル試作品', 'local');
   return {
     subscribe(callback) {
       listeners.add(callback);
@@ -153,7 +154,7 @@ function createLocalStore() {
 function normalizeState(input) {
   const next = structuredClone(input || seedData);
   next.members = Array.isArray(next.members) && next.members.length ? next.members : seedData.members;
-  next.dates = Array.isArray(next.dates) && next.dates.length ? next.dates : seedData.dates;
+  next.dates = Array.isArray(next.dates) && next.dates.length === seedData.dates.length ? next.dates : seedData.dates;
   next.songs = Array.isArray(next.songs) && next.songs.length ? next.songs : seedData.songs;
   next.attendance = next.attendance || {};
   next.songMembers = normalizeSongMembers(next.songMembers || {});
@@ -204,10 +205,6 @@ function bindTabs() {
     localStorage.setItem(MEMBER_KEY, selectedMemberId);
     renderAttendance();
   });
-  $('dateSelect').addEventListener('change', (event) => {
-    selectedDateId = event.target.value;
-    renderThursdays();
-  });
 }
 
 function renderAll() {
@@ -215,8 +212,7 @@ function renderAll() {
   renderHome();
   renderAttendance();
   renderSongMatrix();
-  renderDateSelect();
-  renderThursdays();
+  renderSchedule();
 }
 
 function renderMemberSelect() {
@@ -230,7 +226,7 @@ function renderHome() {
   const date = nearestDate(state.dates);
   const scores = songScores(date.id).slice(0, 2);
   const pending = pendingMembers(date.id);
-  $('homeDateText').textContent = `${date.label} がいちばん近い木曜です。`;
+  $('homeDateText').textContent = `${date.label} がいちばん近い候補日です。`;
   $('homeSongs').innerHTML = scores.length
     ? scores.map((song, index) => `<span class="song-pill">${index + 1}位 ${song.title}</span>`).join('')
     : '<span class="soft-text">曲メンバーを設定すると表示されます。</span>';
@@ -290,48 +286,46 @@ function renderSongMatrix() {
   });
 }
 
-function renderDateSelect() {
-  $('dateSelect').innerHTML = state.dates.map((date) => `<option value="${date.id}">${date.label}</option>`).join('');
-  if (!state.dates.some((date) => date.id === selectedDateId)) selectedDateId = state.dates[0].id;
-  $('dateSelect').value = selectedDateId;
-}
-
-function renderThursdays() {
-  const scores = songScores(selectedDateId);
-  $('songCounts').innerHTML = scores.map((song) => (
-    `<div class="song-count">
-      <div class="song-count-top">
-        <span class="song-name">${song.title}</span>
-        <span class="count-text">${formatNum(song.available)}人 / ${song.total}人</span>
-      </div>
-      <div class="progress"><i style="width:${Math.round(song.ratio * 100)}%"></i></div>
-    </div>`
-  )).join('');
-  $('rankingList').innerHTML = scores.slice(0, 2).map((song, index) => (
-    `<div class="rank-item">
-      <span class="rank-badge">${index + 1}位</span>
-      <div>
-        <div class="song-name">${song.title}</div>
-        <div class="soft-text">${formatNum(song.available)}人 / ${song.total}人（${Math.round(song.ratio * 100)}%）</div>
-      </div>
-    </div>`
-  )).join('');
-  const focus = focusMembers(selectedDateId);
-  $('focusList').innerHTML = focus.length ? focus.map((row) => (
-    `<div class="focus-item">
-      <div><span class="note-badge">注目</span></div>
-      <div class="focus-title">${memberLabel(row.member)}</div>
-      <div class="soft-text">参加可能 ${row.availableDays}日</div>
-      <div class="song-picks">${row.songs.map((song) => `<span class="song-pill">${song.title}</span>`).join('') || '<span class="soft-text">参加曲未設定</span>'}</div>
-    </div>`
-  )).join('') : '<div class="soft-text">この日に該当メンバーはいません。</div>';
+function renderSchedule() {
+  $('dateRankings').innerHTML = state.dates.map((date) => {
+    const scores = songScores(date.id);
+    const focus = focusMembers(date.id);
+    return `
+      <section class="date-rank-card">
+        <div class="date-rank-head">
+          <div class="date-rank-title">${date.label}</div>
+          <div class="date-rank-total">${totalAvailableMembers(date.id)}人</div>
+        </div>
+        <div class="date-song-list">
+          ${scores.map((song, index) => `
+            <div class="date-song-row ${index === 0 ? 'is-first' : ''} ${index === 1 ? 'is-second' : ''}">
+              <span class="date-rank-badge">${index + 1}位</span>
+              <div>
+                <div class="song-name">${song.title}</div>
+                <div class="soft-text">${formatNum(song.available)}人 / ${song.total}人（${Math.round(song.ratio * 100)}%）</div>
+              </div>
+              <div class="count-text">${Math.round(song.ratio * 100)}%</div>
+            </div>
+          `).join('')}
+        </div>
+        ${focus.length ? `
+          <div class="date-focus">
+            <strong>注目</strong>
+            ${focus.map((row) => `
+              <div>${memberLabel(row.member)}: ${row.songs.map((song) => song.title).join('、') || '参加曲未設定'}</div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </section>
+    `;
+  }).join('');
 }
 
 async function saveAttendance(dateId, status) {
   state.attendance[selectedMemberId][dateId] = status;
   renderAttendance();
   renderHome();
-  renderThursdays();
+  renderSchedule();
   await savePath(`attendance/${selectedMemberId}/${dateId}`, status, 'attendanceSaveNote');
 }
 
@@ -341,7 +335,7 @@ async function saveSongMember(songId, memberId) {
   state.songMembers[songId][memberId] = !current;
   renderSongMatrix();
   renderHome();
-  renderThursdays();
+  renderSchedule();
   await savePath(`songMembers/${songId}/${memberId}`, !current, 'songSaveNote');
 }
 
@@ -365,6 +359,10 @@ function songScores(dateId) {
     const total = ids.length;
     return { ...song, available, total, ratio: total ? available / total : 0 };
   }).sort((a, b) => b.ratio - a.ratio || b.available - a.available || a.title.localeCompare(b.title, 'ja'));
+}
+
+function totalAvailableMembers(dateId) {
+  return state.members.filter((member) => statusWeight(member.id, dateId) > 0).length;
 }
 
 function songMemberIds(songId) {
@@ -396,18 +394,26 @@ function nearestDate(dates) {
   return dates.find((date) => date.iso >= todayKey) || dates[dates.length - 1] || seedData.dates[0];
 }
 
+function createAugustDates() {
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+  return Array.from({ length: 31 }, (_, index) => {
+    const day = index + 1;
+    const dayText = String(day).padStart(2, '0');
+    const date = new Date(Date.UTC(2026, 7, day));
+    return {
+      id: `D${dayText}`,
+      label: `8/${day}(${weekdays[date.getUTCDay()]})`,
+      iso: `2026-08-${dayText}`,
+    };
+  });
+}
+
 function memberLabel(member) {
   return `${member.name}${member.part ? ` / ${member.part}` : ''}`;
 }
 
 function formatNum(value) {
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
-}
-
-function setSync(text, mode) {
-  $('syncText').textContent = text;
-  $('syncCard').classList.remove('is-online', 'is-local', 'is-error');
-  $('syncCard').classList.add(`is-${mode}`);
 }
 
 function setLoading(active) {
