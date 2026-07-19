@@ -8,7 +8,6 @@ const statusItems = [
   ['○', '○'],
   ['△', '△'],
   ['×', '×'],
-  ['', '未入力'],
 ];
 
 const seedData = {
@@ -66,7 +65,7 @@ const seedData = {
 
 let state = normalizeState(seedData);
 let store = null;
-let selectedMemberId = localStorage.getItem(MEMBER_KEY) || seedData.members[0].id;
+let selectedMemberId = localStorage.getItem(MEMBER_KEY) || '';
 let selectedDateId = nearestDate(seedData.dates).id;
 let firstRender = true;
 
@@ -80,8 +79,8 @@ async function boot() {
   store = await createStore();
   store.subscribe((nextState) => {
     state = normalizeState(nextState);
-    if (!state.members.some((member) => member.id === selectedMemberId)) {
-      selectedMemberId = state.members[0]?.id || '';
+    if (selectedMemberId && !state.members.some((member) => member.id === selectedMemberId)) {
+      selectedMemberId = '';
     }
     renderAll();
     if (firstRender) {
@@ -95,12 +94,21 @@ async function createStore() {
   const config = window.SWINGBEANS_FIREBASE_CONFIG;
   if (config && config.apiKey && config.databaseURL) {
     try {
-      return await createFirebaseStore(config);
+      return await withTimeout(createFirebaseStore(config), 6000);
     } catch (error) {
       console.warn(error);
     }
   }
   return createLocalStore();
+}
+
+function withTimeout(promise, timeoutMs) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Firebase接続がタイムアウトしました')), timeoutMs);
+    }),
+  ]);
 }
 
 async function createFirebaseStore(config) {
@@ -202,8 +210,16 @@ function bindTabs() {
   });
   $('memberSelect').addEventListener('change', (event) => {
     selectedMemberId = event.target.value;
-    localStorage.setItem(MEMBER_KEY, selectedMemberId);
+    if (selectedMemberId) {
+      localStorage.setItem(MEMBER_KEY, selectedMemberId);
+    } else {
+      localStorage.removeItem(MEMBER_KEY);
+    }
     renderAttendance();
+  });
+  $('hotDateSelect').addEventListener('change', (event) => {
+    selectedDateId = event.target.value;
+    renderSelectedDateRanking();
   });
 }
 
@@ -216,19 +232,32 @@ function renderAll() {
 }
 
 function renderMemberSelect() {
-  $('memberSelect').innerHTML = state.members.map((member) => (
+  $('memberSelect').innerHTML = '<option value="">選択してください</option>' + state.members.map((member) => (
     `<option value="${member.id}">${member.name}${member.part ? ` / ${member.part}` : ''}</option>`
   )).join('');
   $('memberSelect').value = selectedMemberId;
 }
 
 function renderHome() {
-  const date = nearestDate(state.dates);
-  const scores = songScores(date.id).slice(0, 2);
+  const home = homeDateInfo();
+  const date = home.date;
+  const scores = songScores(date.id);
+  const available = availableMembers(date.id);
   const pending = pendingMembers(date.id);
-  $('homeDateText').textContent = `${date.label} がいちばん近い候補日です。`;
+  $('homeDateText').textContent = home.isToday
+    ? `今日 ${home.todayLabel} の出席から見ています。`
+    : `今日 ${home.todayLabel}。8月メモでは ${date.label} を表示しています。`;
+  $('homeTodayMembers').innerHTML = available.length
+    ? available.map((member) => `<span class="member-chip">${memberLabel(member)}</span>`).join('')
+    : '<span class="soft-text">まだ参加できる人はいません。</span>';
   $('homeSongs').innerHTML = scores.length
-    ? scores.map((song, index) => `<span class="song-pill">${index + 1}位 ${song.title}</span>`).join('')
+    ? scores.map((song, index) => `
+      <div class="home-song-row ${index === 0 ? 'is-first' : ''} ${index === 1 ? 'is-second' : ''}">
+        <span>${index + 1}位</span>
+        <strong>${song.title}</strong>
+        <em>${formatNum(song.available)}人 / ${song.total}人</em>
+      </div>
+    `).join('')
     : '<span class="soft-text">曲メンバーを設定すると表示されます。</span>';
   $('homePendingText').textContent = pending.length
     ? `${pending.length}人がまだ未入力です。分かる日だけで大丈夫。`
@@ -239,12 +268,19 @@ function renderHome() {
 }
 
 function renderAttendance() {
+  if (!selectedMemberId) {
+    $('attendanceRows').innerHTML = `
+      <div class="empty-note">
+        自分の名前を選ぶと、8月の日付入力が表示されます。
+      </div>
+    `;
+    return;
+  }
   const current = state.attendance[selectedMemberId] || {};
   $('attendanceRows').innerHTML = state.dates.map((date) => (
     `<div class="attendance-row">
       <div>
         <div class="date-title">${date.label}</div>
-        <div class="date-sub">${date.iso}</div>
       </div>
       <div class="status-buttons">
         ${statusItems.map(([value, label]) => (
@@ -287,41 +323,98 @@ function renderSongMatrix() {
 }
 
 function renderSchedule() {
-  $('dateRankings').innerHTML = state.dates.map((date) => {
-    const scores = songScores(date.id);
-    const focus = focusMembers(date.id);
+  if (!state.dates.some((date) => date.id === selectedDateId)) {
+    selectedDateId = nearestDate(state.dates).id;
+  }
+  renderHotDateSelect();
+  renderPracticeCalendar();
+  renderSongHotDates();
+  renderSelectedDateRanking();
+}
+
+function renderHotDateSelect() {
+  $('hotDateSelect').innerHTML = state.dates.map((date) => (
+    `<option value="${date.id}">${date.label}</option>`
+  )).join('');
+  $('hotDateSelect').value = selectedDateId;
+}
+
+function renderPracticeCalendar() {
+  const plan = recommendedPracticeCalendar();
+  $('practiceCalendar').innerHTML = plan.map((day) => `
+    <section class="practice-day">
+      <div class="practice-day-head">
+        <strong>${day.date.label}</strong>
+        <span>${totalAvailableMembers(day.date.id)}人</span>
+      </div>
+      <div class="practice-song-picks">
+        ${day.songs.map((item) => `
+          <span class="practice-song-pill">
+            ${item.song.title}
+            <small>${item.pickRank}回目候補</small>
+          </span>
+        `).join('')}
+      </div>
+    </section>
+  `).join('');
+}
+
+function renderSongHotDates() {
+  $('songHotDates').innerHTML = state.songs.map((song) => {
+    const dates = hotDatesForSong(song.id).slice(0, 3);
     return `
-      <section class="date-rank-card">
-        <div class="date-rank-head">
-          <div class="date-rank-title">${date.label}</div>
-          <div class="date-rank-total">${totalAvailableMembers(date.id)}人</div>
-        </div>
-        <div class="date-song-list">
-          ${scores.map((song, index) => `
-            <div class="date-song-row ${index === 0 ? 'is-first' : ''} ${index === 1 ? 'is-second' : ''}">
-              <span class="date-rank-badge">${index + 1}位</span>
-              <div>
-                <div class="song-name">${song.title}</div>
-                <div class="soft-text">${formatNum(song.available)}人 / ${song.total}人（${Math.round(song.ratio * 100)}%）</div>
-              </div>
-              <div class="count-text">${Math.round(song.ratio * 100)}%</div>
+      <section class="hot-song-card">
+        <h4>${song.title}</h4>
+        <div class="hot-date-list">
+          ${dates.map((item, index) => `
+            <div class="hot-date-item ${index === 0 ? 'is-first' : ''} ${index === 1 ? 'is-second' : ''}">
+              <span>${index + 1}位</span>
+              <strong>${item.date.label}</strong>
+              <em>${formatNum(item.available)}人 / ${item.total}人（${Math.round(item.ratio * 100)}%）</em>
             </div>
           `).join('')}
         </div>
-        ${focus.length ? `
-          <div class="date-focus">
-            <strong>注目</strong>
-            ${focus.map((row) => `
-              <div>${memberLabel(row.member)}: ${row.songs.map((song) => song.title).join('、') || '参加曲未設定'}</div>
-            `).join('')}
-          </div>
-        ` : ''}
       </section>
     `;
   }).join('');
 }
 
+function renderSelectedDateRanking() {
+  const date = state.dates.find((item) => item.id === selectedDateId) || nearestDate(state.dates);
+  const scores = songScores(date.id);
+  const focus = focusMembers(date.id);
+  $('selectedDateRanking').innerHTML = `
+    <section class="date-rank-card">
+      <div class="date-rank-head">
+        <div class="date-rank-title">${date.label}</div>
+        <div class="date-rank-total">${totalAvailableMembers(date.id)}人</div>
+      </div>
+      <div class="date-song-list">
+        ${scores.map((song, index) => `
+          <div class="date-song-row ${index === 0 ? 'is-first' : ''} ${index === 1 ? 'is-second' : ''}">
+            <span class="date-rank-badge">${index + 1}位</span>
+            <div>
+              <div class="song-name">${song.title}</div>
+              <div class="soft-text">${formatNum(song.available)}人 / ${song.total}人（${Math.round(song.ratio * 100)}%）</div>
+            </div>
+            <div class="count-text">${Math.round(song.ratio * 100)}%</div>
+          </div>
+        `).join('')}
+      </div>
+      ${focus.length ? `
+        <div class="date-focus">
+          <strong>注目</strong>
+          ${focus.map((row) => `
+            <div>${memberLabel(row.member)}: ${row.songs.map((song) => song.title).join('、') || '参加曲未設定'}</div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </section>
+  `;
+}
+
 async function saveAttendance(dateId, status) {
+  if (!selectedMemberId) return;
   state.attendance[selectedMemberId][dateId] = status;
   renderAttendance();
   renderHome();
@@ -353,16 +446,53 @@ async function savePath(path, value, noteId) {
 }
 
 function songScores(dateId) {
-  return state.songs.map((song) => {
-    const ids = songMemberIds(song.id);
-    const available = ids.reduce((sum, memberId) => sum + statusWeight(memberId, dateId), 0);
-    const total = ids.length;
-    return { ...song, available, total, ratio: total ? available / total : 0 };
-  }).sort((a, b) => b.ratio - a.ratio || b.available - a.available || a.title.localeCompare(b.title, 'ja'));
+  return state.songs.map((song) => songScore(song, dateId))
+    .sort(compareSongScores);
+}
+
+function songScore(song, dateId) {
+  const ids = songMemberIds(song.id);
+  const available = ids.reduce((sum, memberId) => sum + statusWeight(memberId, dateId), 0);
+  const total = ids.length;
+  return { ...song, available, total, ratio: total ? available / total : 0 };
+}
+
+function compareSongScores(a, b) {
+  return b.ratio - a.ratio || b.available - a.available || a.title.localeCompare(b.title, 'ja');
+}
+
+function hotDatesForSong(songId) {
+  const song = state.songs.find((item) => item.id === songId);
+  if (!song) return [];
+  return state.dates.map((date) => ({ ...songScore(song, date.id), date }))
+    .sort((a, b) => b.ratio - a.ratio || b.available - a.available || a.date.iso.localeCompare(b.date.iso));
+}
+
+function recommendedPracticeCalendar() {
+  const byDate = new Map();
+  state.songs.forEach((song) => {
+    hotDatesForSong(song.id).slice(0, 3).forEach((item, index) => {
+      if (!byDate.has(item.date.id)) {
+        byDate.set(item.date.id, { date: item.date, songs: [] });
+      }
+      byDate.get(item.date.id).songs.push({ song, pickRank: index + 1, score: item });
+    });
+  });
+  return state.dates
+    .filter((date) => byDate.has(date.id))
+    .map((date) => {
+      const day = byDate.get(date.id);
+      day.songs.sort((a, b) => a.pickRank - b.pickRank || compareSongScores(a.score, b.score));
+      return day;
+    });
+}
+
+function availableMembers(dateId) {
+  return state.members.filter((member) => statusWeight(member.id, dateId) > 0);
 }
 
 function totalAvailableMembers(dateId) {
-  return state.members.filter((member) => statusWeight(member.id, dateId) > 0).length;
+  return availableMembers(dateId).length;
 }
 
 function songMemberIds(songId) {
@@ -390,8 +520,31 @@ function focusMembers(dateId) {
 
 function nearestDate(dates) {
   const today = new Date();
-  const todayKey = today.toISOString().slice(0, 10);
+  const todayKey = formatIsoDate(today);
   return dates.find((date) => date.iso >= todayKey) || dates[dates.length - 1] || seedData.dates[0];
+}
+
+function homeDateInfo() {
+  const today = new Date();
+  const todayKey = formatIsoDate(today);
+  const date = state.dates.find((item) => item.iso === todayKey) || nearestDate(state.dates);
+  return {
+    date,
+    isToday: date.iso === todayKey,
+    todayLabel: formatDisplayDate(today),
+  };
+}
+
+function formatIsoDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function formatDisplayDate(date) {
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+  return `${date.getMonth() + 1}/${date.getDate()}(${weekdays[date.getDay()]})`;
 }
 
 function createAugustDates() {

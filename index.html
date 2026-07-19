@@ -26,18 +26,24 @@
       <section id="home" class="view is-active" aria-labelledby="homeTitle">
         <div class="night-board">
           <div>
-            <p class="eyebrow">next day</p>
-            <h2 id="homeTitle">近い候補日</h2>
+            <p class="eyebrow">today's practice</p>
+            <h2 id="homeTitle">今日の練習メモ</h2>
             <p class="soft-text" id="homeDateText">読み込み中...</p>
+            <div class="home-today-grid">
+              <div>
+                <h3>今日参加できるメンバー</h3>
+                <div id="homeTodayMembers" class="member-chips"></div>
+              </div>
+              <div>
+                <h3>今日のおすすめ曲順</h3>
+                <div id="homeSongs" class="home-song-order"></div>
+              </div>
+            </div>
           </div>
           <div class="moon-mark" aria-hidden="true"></div>
         </div>
 
         <div class="home-grid">
-          <section class="paper-panel warm-panel">
-            <h3>今日のおすすめ練習曲</h3>
-            <div id="homeSongs" class="song-picks"></div>
-          </section>
           <section class="paper-panel">
             <h3>未入力の人へ</h3>
             <p class="soft-text" id="homePendingText">読み込み中...</p>
@@ -55,7 +61,7 @@
             </div>
             <span class="save-note" id="attendanceSaveNote"></span>
           </div>
-          <label class="field-label" for="memberSelect">自分の名前</label>
+          <label class="field-label" for="memberSelect">自分の名前を選んでください</label>
           <select id="memberSelect" class="select"></select>
           <p class="legend-text">◎=参加 / ○=一部参加(0.1) / △=未確定・かなり短時間 / ×=欠席</p>
           <div id="attendanceRows" class="attendance-list"></div>
@@ -86,8 +92,33 @@
               <h2 id="thursdayTitle">日程一覧</h2>
             </div>
           </div>
-          <p class="soft-text">8月の各日について、参加率が高い曲順に並べます。1位と2位は色を変えて目立たせています。</p>
-          <div id="dateRankings" class="date-rankings"></div>
+          <p class="soft-text">入力された出席から、曲ごとの集まりやすさを見ます。</p>
+
+          <section class="schedule-block">
+            <div class="schedule-block-head">
+              <p class="eyebrow">practice plan</p>
+              <h3>おすすめ練習カレンダー</h3>
+            </div>
+            <p class="soft-text">それぞれの曲を3回ずつ練習するとした時のおすすめ日です。日が被っても大丈夫です。</p>
+            <div id="practiceCalendar" class="practice-calendar"></div>
+          </section>
+
+          <section class="schedule-block">
+            <div class="schedule-block-head">
+              <p class="eyebrow">hot dates</p>
+              <h3>曲ごとのあつい日付TOP3</h3>
+            </div>
+            <div id="songHotDates" class="song-hot-dates"></div>
+          </section>
+
+          <section class="schedule-block">
+            <div class="schedule-block-head">
+              <p class="eyebrow">date ranking</p>
+              <h3>日付ごとのあつい曲順</h3>
+            </div>
+            <select id="hotDateSelect" class="select"></select>
+            <div id="selectedDateRanking" class="date-rankings"></div>
+          </section>
         </div>
       </section>
     </main>

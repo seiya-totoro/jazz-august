@@ -148,6 +148,11 @@ h3 {
   color: rgba(255, 247, 223, .78);
 }
 
+.night-board > div:first-child {
+  position: relative;
+  z-index: 1;
+}
+
 .night-board::after {
   content: "";
   position: absolute;
@@ -174,6 +179,70 @@ h3 {
 .home-grid {
   display: grid;
   gap: 14px;
+}
+
+.home-today-grid {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.home-today-grid h3 {
+  margin-bottom: 8px;
+  color: #fff7df;
+}
+
+.member-chips,
+.home-song-order,
+.practice-song-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.member-chip,
+.home-song-row,
+.practice-song-pill {
+  border: 1px solid rgba(255, 247, 223, .22);
+  border-radius: 999px;
+  background: rgba(255, 247, 223, .1);
+  color: #fff7df;
+}
+
+.member-chip {
+  padding: 6px 10px;
+  font-weight: 800;
+}
+
+.home-song-row {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 11px;
+}
+
+.home-song-row span {
+  font-weight: 950;
+}
+
+.home-song-row em {
+  color: rgba(255, 247, 223, .72);
+  font-style: normal;
+  font-weight: 800;
+}
+
+.home-song-row.is-first {
+  background: var(--yellow);
+  color: var(--navy);
+}
+
+.home-song-row.is-first em {
+  color: rgba(39, 56, 88, .75);
+}
+
+.home-song-row.is-second {
+  border-color: rgba(233, 196, 106, .58);
+  background: rgba(255, 240, 189, .16);
 }
 
 .paper-panel {
@@ -251,14 +320,9 @@ h3 {
   font-weight: 900;
 }
 
-.date-sub {
-  color: var(--muted);
-  font-size: .86rem;
-}
-
 .status-buttons {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 7px;
 }
 
@@ -276,6 +340,15 @@ h3 {
   border-color: rgba(39, 56, 88, .38);
   background: var(--yellow-soft);
   color: var(--navy);
+}
+
+.empty-note {
+  padding: 18px;
+  border: 1px dashed rgba(39, 56, 88, .24);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .34);
+  color: var(--muted);
+  font-weight: 800;
 }
 
 .matrix-wrap {
@@ -404,6 +477,132 @@ h3 {
   display: grid;
   gap: 14px;
   margin-top: 14px;
+}
+
+.schedule-block {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.schedule-block-head {
+  margin-bottom: 8px;
+}
+
+.schedule-block-head h3 {
+  margin-bottom: 0;
+}
+
+.practice-calendar,
+.song-hot-dates {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.practice-day,
+.hot-song-card {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .34);
+}
+
+.practice-day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.practice-day-head strong,
+.hot-song-card h4 {
+  color: var(--navy);
+  font-size: 1.08rem;
+  font-weight: 950;
+}
+
+.practice-day-head span {
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.practice-song-pill {
+  padding: 7px 10px;
+  border-color: rgba(39, 56, 88, .12);
+  background: rgba(255, 240, 189, .5);
+  color: var(--navy);
+  font-weight: 950;
+}
+
+.practice-song-pill small {
+  margin-left: 5px;
+  color: #926f23;
+  font-size: .74rem;
+  font-weight: 900;
+}
+
+.hot-song-card h4 {
+  margin: 0 0 10px;
+}
+
+.hot-date-list {
+  display: grid;
+  gap: 8px;
+}
+
+.hot-date-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 9px;
+  align-items: baseline;
+  padding: 9px;
+  border: 1px solid rgba(39, 56, 88, .12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .32);
+}
+
+.hot-date-item span {
+  grid-row: span 2;
+  align-self: center;
+  min-width: 42px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(39, 56, 88, .08);
+  color: var(--navy);
+  font-weight: 950;
+  text-align: center;
+}
+
+.hot-date-item strong {
+  color: var(--navy);
+  font-weight: 950;
+}
+
+.hot-date-item em {
+  color: var(--muted);
+  font-style: normal;
+  font-weight: 800;
+}
+
+.hot-date-item.is-first {
+  background: rgba(39, 56, 88, .94);
+}
+
+.hot-date-item.is-first span {
+  background: rgba(255, 247, 223, .18);
+}
+
+.hot-date-item.is-first span,
+.hot-date-item.is-first strong,
+.hot-date-item.is-first em {
+  color: #fff7df;
+}
+
+.hot-date-item.is-second {
+  border-color: rgba(233, 196, 106, .75);
+  background: rgba(255, 240, 189, .75);
 }
 
 .date-rank-card {
@@ -643,7 +842,16 @@ h3 {
   }
 
   .home-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(280px, .85fr);
+    grid-template-columns: 1fr;
+  }
+
+  .home-today-grid,
+  .song-hot-dates {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .practice-calendar {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .attendance-row {
