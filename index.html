@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SwingBeans 8月 出席・曲管理</title>
+  <title>SwingBeans 出席・曲管理</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -11,19 +11,19 @@
     <header class="app-header">
       <div>
         <p class="eyebrow">August practice notes</p>
-        <h1>SwingBeans 8月メモ</h1>
+        <h1>SwingBeans</h1>
       </div>
     </header>
 
     <nav class="main-tabs" aria-label="画面切り替え">
-      <button class="tab is-active" data-view="home">ホーム</button>
-      <button class="tab" data-view="attendance">出席入力</button>
+      <button class="tab" data-view="home">ホーム</button>
+      <button class="tab is-active" data-view="attendance">出席入力</button>
       <button class="tab" data-view="songs">曲メンバー</button>
       <button class="tab" data-view="thursdays">日程一覧</button>
     </nav>
 
     <main>
-      <section id="home" class="view is-active" aria-labelledby="homeTitle">
+      <section id="home" class="view" aria-labelledby="homeTitle">
         <div class="night-board">
           <div>
             <p class="eyebrow">today's practice</p>
@@ -52,7 +52,7 @@
         </div>
       </section>
 
-      <section id="attendance" class="view" aria-labelledby="attendanceTitle">
+      <section id="attendance" class="view is-active" aria-labelledby="attendanceTitle">
         <div class="paper-panel">
           <div class="panel-head">
             <div>
@@ -92,12 +92,12 @@
               <h2 id="thursdayTitle">日程一覧</h2>
             </div>
           </div>
-          <p class="soft-text">入力された出席から、曲ごとの集まりやすさを見ます。</p>
+          <p class="soft-text">入力された出席から、練習日と曲の決めやすさを見ます。</p>
 
           <section class="schedule-block">
             <div class="schedule-block-head">
               <p class="eyebrow">practice plan</p>
-              <h3>おすすめ練習カレンダー</h3>
+              <h3>練習日のおすすめ</h3>
             </div>
             <p class="soft-text">それぞれの曲を3回ずつ練習するとした時のおすすめ日です。日が被っても大丈夫です。</p>
             <div id="practiceCalendar" class="practice-calendar"></div>
@@ -105,8 +105,8 @@
 
           <section class="schedule-block">
             <div class="schedule-block-head">
-              <p class="eyebrow">hot dates</p>
-              <h3>曲ごとのあつい日付TOP3</h3>
+              <p class="eyebrow">best dates</p>
+              <h3>曲ごとに集まりやすい日 TOP3</h3>
             </div>
             <div id="songHotDates" class="song-hot-dates"></div>
           </section>
@@ -114,7 +114,7 @@
           <section class="schedule-block">
             <div class="schedule-block-head">
               <p class="eyebrow">date ranking</p>
-              <h3>日付ごとのあつい曲順</h3>
+              <h3>日付を選んで曲順を見る</h3>
             </div>
             <select id="hotDateSelect" class="select"></select>
             <div id="selectedDateRanking" class="date-rankings"></div>

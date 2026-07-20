@@ -244,9 +244,7 @@ function renderHome() {
   const scores = songScores(date.id);
   const available = availableMembers(date.id);
   const pending = pendingMembers(date.id);
-  $('homeDateText').textContent = home.isToday
-    ? `今日 ${home.todayLabel} の出席から見ています。`
-    : `今日 ${home.todayLabel}。8月メモでは ${date.label} を表示しています。`;
+  $('homeDateText').textContent = home.todayLabel;
   $('homeTodayMembers').innerHTML = available.length
     ? available.map((member) => `<span class="member-chip">${memberLabel(member)}</span>`).join('')
     : '<span class="soft-text">まだ参加できる人はいません。</span>';

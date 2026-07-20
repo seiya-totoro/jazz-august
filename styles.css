@@ -480,13 +480,23 @@ h3 {
 }
 
 .schedule-block {
-  margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px solid var(--line);
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .48), rgba(255, 255, 255, .08)),
+    rgba(255, 250, 240, .5);
+}
+
+.schedule-block + .schedule-block {
+  margin-top: 22px;
 }
 
 .schedule-block-head {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(39, 56, 88, .12);
 }
 
 .schedule-block-head h3 {
