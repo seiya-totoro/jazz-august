@@ -245,7 +245,7 @@ function renderHome() {
   const available = availableMembers(date.id);
   const pending = pendingMembers(date.id);
   const rare = focusMembers(date.id);
-  $('homeDateText').textContent = `${date.label} / ${dateMeta(date)}`;
+  $('homeDateText').textContent = date.label;
   $('homeTodayMembers').innerHTML = available.length
     ? available.map((member) => `<span class="member-chip">${memberLabel(member)}</span>`).join('')
     : '<span class="soft-text">まだ参加できる人はいません。</span>';
@@ -259,13 +259,8 @@ function renderHome() {
     `).join('')
     : '<span class="soft-text">曲メンバーを設定すると表示されます。</span>';
   $('homeRareMembers').innerHTML = rare.length
-    ? rare.map((row) => `
-      <div class="rare-line">
-        <strong>${memberLabel(row.member)} が出席するよー！</strong>
-        <span>${row.songs.map((song) => song.title).join('、') || '参加曲未設定'}</span>
-      </div>
-    `).join('')
-    : '<span class="soft-text">この日はレアメンバーの出席はまだありません。</span>';
+    ? rare.map((row) => `<span class="member-chip">${memberLabel(row.member)}</span>`).join('')
+    : '';
   $('homePendingText').textContent = pending.length
     ? `${pending.length}人がまだ未入力です。分かる日だけで大丈夫。`
     : 'この日は全員入力済みです。';

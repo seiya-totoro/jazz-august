@@ -3,7 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SwingBeans 出席・曲管理</title>
+  <title>SwingBeans</title>
+  <meta name="description" content="SwingBeans">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SwingBeans">
+  <meta property="og:title" content="SwingBeans">
+  <meta property="og:description" content="SwingBeans">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="SwingBeans">
+  <meta name="twitter:description" content="SwingBeans">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -31,12 +39,12 @@
             <p class="soft-text" id="homeDateText">読み込み中...</p>
             <div class="home-today-grid">
               <div>
-                <h3>この日に参加できるメンバー</h3>
-                <div id="homeTodayMembers" class="member-chips"></div>
-              </div>
-              <div>
                 <h3>この日の曲順</h3>
                 <div id="homeSongs" class="home-song-order"></div>
+              </div>
+              <div>
+                <h3>この日に参加できるメンバー</h3>
+                <div id="homeTodayMembers" class="member-chips"></div>
               </div>
               <div>
                 <h3>レアメンバー</h3>
@@ -99,10 +107,6 @@
           <p class="soft-text">日付を選ぶと、その日の曲ごとの集まりやすさを表示します。</p>
 
           <section class="schedule-block">
-            <div class="schedule-block-head">
-              <p class="eyebrow">data ranking</p>
-              <h3>DATA RANKING</h3>
-            </div>
             <select id="hotDateSelect" class="select"></select>
             <div id="dateInsight" class="date-insight"></div>
             <div id="selectedDateRanking" class="date-rankings"></div>

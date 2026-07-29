@@ -153,18 +153,6 @@ h3 {
   z-index: 1;
 }
 
-.night-board::after {
-  content: "";
-  position: absolute;
-  left: 22px;
-  right: 22px;
-  bottom: 24px;
-  height: 44px;
-  border-top: 1px solid rgba(255, 247, 223, .24);
-  border-bottom: 1px solid rgba(255, 247, 223, .14);
-  opacity: .8;
-}
-
 .moon-mark {
   position: absolute;
   right: 24px;
@@ -200,7 +188,8 @@ h3 {
 }
 
 .rare-lines {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -246,26 +235,6 @@ h3 {
 .home-song-row.is-second {
   border-color: rgba(233, 196, 106, .58);
   background: rgba(255, 240, 189, .16);
-}
-
-.rare-line {
-  display: grid;
-  gap: 2px;
-  padding: 9px 11px;
-  border: 1px solid rgba(233, 196, 106, .42);
-  border-radius: 16px;
-  background: rgba(255, 240, 189, .14);
-}
-
-.rare-line strong {
-  color: #fff7df;
-  font-weight: 950;
-}
-
-.rare-line span {
-  color: rgba(255, 247, 223, .74);
-  font-size: .86rem;
-  font-weight: 800;
 }
 
 .paper-panel {
@@ -383,17 +352,19 @@ h3 {
 
 .matrix-wrap {
   width: 100%;
-  overflow-x: auto;
-  padding-bottom: 4px;
+  max-height: min(68vh, 720px);
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .38);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .song-matrix {
   display: grid;
   min-width: 760px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, .38);
+  background: transparent;
 }
 
 .matrix-row,
@@ -421,15 +392,20 @@ h3 {
 }
 
 .matrix-head .matrix-cell {
+  position: sticky;
+  top: 0;
+  z-index: 4;
   background: var(--navy-soft);
   color: var(--navy);
   font-size: .82rem;
   font-weight: 900;
   text-align: center;
+  box-shadow: 0 1px 0 var(--line);
 }
 
 .matrix-head .matrix-cell:first-child {
-  z-index: 3;
+  z-index: 6;
+  background: var(--navy-soft);
 }
 
 .part-text {
