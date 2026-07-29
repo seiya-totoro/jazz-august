@@ -43,7 +43,7 @@ const seedData = {
     { id: 'M29', name: 'member29', part: '' },
     { id: 'M30', name: 'member30', part: '' },
   ],
-  dates: createAugustDates(),
+  dates: createPracticeDates(),
   songs: [
     { id: 'S1', title: 'moanin!' },
     { id: 'S2', title: 'シロクマ' },
@@ -122,7 +122,7 @@ async function createFirebaseStore(config) {
     await dbModule.set(rootRef, seedData);
   } else {
     const saved = snapshot.val() || {};
-    if (!Array.isArray(saved.dates) || saved.dates.length !== seedData.dates.length) {
+    if (!datesMatch(saved.dates, seedData.dates)) {
       await dbModule.update(rootRef, {
         members: seedData.members,
         dates: seedData.dates,
@@ -162,7 +162,7 @@ function createLocalStore() {
 function normalizeState(input) {
   const next = structuredClone(input || seedData);
   next.members = Array.isArray(next.members) && next.members.length ? next.members : seedData.members;
-  next.dates = Array.isArray(next.dates) && next.dates.length === seedData.dates.length ? next.dates : seedData.dates;
+  next.dates = datesMatch(next.dates, seedData.dates) ? next.dates : seedData.dates;
   next.songs = Array.isArray(next.songs) && next.songs.length ? next.songs : seedData.songs;
   next.attendance = next.attendance || {};
   next.songMembers = normalizeSongMembers(next.songMembers || {});
@@ -244,7 +244,8 @@ function renderHome() {
   const scores = songScores(date.id);
   const available = availableMembers(date.id);
   const pending = pendingMembers(date.id);
-  $('homeDateText').textContent = home.todayLabel;
+  const rare = focusMembers(date.id);
+  $('homeDateText').textContent = `${date.label} / ${dateMeta(date)}`;
   $('homeTodayMembers').innerHTML = available.length
     ? available.map((member) => `<span class="member-chip">${memberLabel(member)}</span>`).join('')
     : '<span class="soft-text">まだ参加できる人はいません。</span>';
@@ -257,6 +258,14 @@ function renderHome() {
       </div>
     `).join('')
     : '<span class="soft-text">曲メンバーを設定すると表示されます。</span>';
+  $('homeRareMembers').innerHTML = rare.length
+    ? rare.map((row) => `
+      <div class="rare-line">
+        <strong>${memberLabel(row.member)} が出席するよー！</strong>
+        <span>${row.songs.map((song) => song.title).join('、') || '参加曲未設定'}</span>
+      </div>
+    `).join('')
+    : '<span class="soft-text">この日はレアメンバーの出席はまだありません。</span>';
   $('homePendingText').textContent = pending.length
     ? `${pending.length}人がまだ未入力です。分かる日だけで大丈夫。`
     : 'この日は全員入力済みです。';
@@ -269,7 +278,7 @@ function renderAttendance() {
   if (!selectedMemberId) {
     $('attendanceRows').innerHTML = `
       <div class="empty-note">
-        自分の名前を選ぶと、8月の日付入力が表示されます。
+        自分の名前を選ぶと、8月と9月の木曜入力が表示されます。
       </div>
     `;
     return;
@@ -279,6 +288,7 @@ function renderAttendance() {
     `<div class="attendance-row">
       <div>
         <div class="date-title">${date.label}</div>
+        <div class="date-meta">${dateMeta(date)}</div>
       </div>
       <div class="status-buttons">
         ${statusItems.map(([value, label]) => (
@@ -325,8 +335,6 @@ function renderSchedule() {
     selectedDateId = nearestDate(state.dates).id;
   }
   renderHotDateSelect();
-  renderPracticeCalendar();
-  renderSongHotDates();
   renderSelectedDateRanking();
 }
 
@@ -337,54 +345,18 @@ function renderHotDateSelect() {
   $('hotDateSelect').value = selectedDateId;
 }
 
-function renderPracticeCalendar() {
-  const plan = recommendedPracticeCalendar();
-  $('practiceCalendar').innerHTML = plan.map((day) => `
-    <section class="practice-day">
-      <div class="practice-day-head">
-        <strong>${day.date.label}</strong>
-        <span>${totalAvailableMembers(day.date.id)}人</span>
-      </div>
-      <div class="practice-song-picks">
-        ${day.songs.map((item) => `
-          <span class="practice-song-pill">
-            ${item.song.title}
-            <small>${item.pickRank}回目候補</small>
-          </span>
-        `).join('')}
-      </div>
-    </section>
-  `).join('');
-}
-
-function renderSongHotDates() {
-  $('songHotDates').innerHTML = state.songs.map((song) => {
-    const dates = hotDatesForSong(song.id).slice(0, 3);
-    return `
-      <section class="hot-song-card">
-        <h4>${song.title}</h4>
-        <div class="hot-date-list">
-          ${dates.map((item, index) => `
-            <div class="hot-date-item ${index === 0 ? 'is-first' : ''} ${index === 1 ? 'is-second' : ''}">
-              <span>${index + 1}位</span>
-              <strong>${item.date.label}</strong>
-              <em>${formatNum(item.available)}人 / ${item.total}人（${Math.round(item.ratio * 100)}%）</em>
-            </div>
-          `).join('')}
-        </div>
-      </section>
-    `;
-  }).join('');
-}
-
 function renderSelectedDateRanking() {
   const date = state.dates.find((item) => item.id === selectedDateId) || nearestDate(state.dates);
   const scores = songScores(date.id);
   const focus = focusMembers(date.id);
+  $('dateInsight').innerHTML = renderDateInsight(date, scores);
   $('selectedDateRanking').innerHTML = `
     <section class="date-rank-card">
       <div class="date-rank-head">
-        <div class="date-rank-title">${date.label}</div>
+        <div>
+          <div class="date-rank-title">${date.label}</div>
+          <div class="date-rank-meta">${dateMeta(date)}</div>
+        </div>
         <div class="date-rank-total">${totalAvailableMembers(date.id)}人</div>
       </div>
       <div class="date-song-list">
@@ -407,6 +379,43 @@ function renderSelectedDateRanking() {
           `).join('')}
         </div>
       ` : ''}
+    </section>
+  `;
+}
+
+function renderDateInsight(date, scores) {
+  const top = scores[0];
+  const second = scores[1];
+  const totalMembers = state.members.length;
+  const entered = state.members.length - pendingMembers(date.id).length;
+  const full = state.members.filter((member) => attendanceStatus(member.id, date.id) === '◎').length;
+  const partial = state.members.filter((member) => attendanceStatus(member.id, date.id) === '○').length;
+  const maybe = state.members.filter((member) => attendanceStatus(member.id, date.id) === '△').length;
+  const comments = [];
+  if (top && top.available > 0) {
+    comments.push(`${top.title} が一番まとまりやすい日です。`);
+  } else {
+    comments.push('まだ入力が少ないので、曲順は仮の状態です。');
+  }
+  if (top && second && top.ratio - second.ratio < 0.08) {
+    comments.push(`${second.title} もかなり近い候補です。`);
+  }
+  if (partial > 0 || maybe > 0) {
+    comments.push(`○が${partial}人、△が${maybe}人います。時間確認をしておくと安心です。`);
+  }
+  return `
+    <section class="insight-card">
+      <div>
+        <strong>${date.label}</strong>
+        <span>${dateMeta(date)}</span>
+      </div>
+      <p>${comments.join(' ')}</p>
+      <div class="insight-metrics">
+        <span>入力 ${entered}/${totalMembers}人</span>
+        <span>参加 ${full}人</span>
+        <span>一部 ${partial}人</span>
+        <span>△ ${maybe}人</span>
+      </div>
     </section>
   `;
 }
@@ -459,32 +468,6 @@ function compareSongScores(a, b) {
   return b.ratio - a.ratio || b.available - a.available || a.title.localeCompare(b.title, 'ja');
 }
 
-function hotDatesForSong(songId) {
-  const song = state.songs.find((item) => item.id === songId);
-  if (!song) return [];
-  return state.dates.map((date) => ({ ...songScore(song, date.id), date }))
-    .sort((a, b) => b.ratio - a.ratio || b.available - a.available || a.date.iso.localeCompare(b.date.iso));
-}
-
-function recommendedPracticeCalendar() {
-  const byDate = new Map();
-  state.songs.forEach((song) => {
-    hotDatesForSong(song.id).slice(0, 3).forEach((item, index) => {
-      if (!byDate.has(item.date.id)) {
-        byDate.set(item.date.id, { date: item.date, songs: [] });
-      }
-      byDate.get(item.date.id).songs.push({ song, pickRank: index + 1, score: item });
-    });
-  });
-  return state.dates
-    .filter((date) => byDate.has(date.id))
-    .map((date) => {
-      const day = byDate.get(date.id);
-      day.songs.sort((a, b) => a.pickRank - b.pickRank || compareSongScores(a.score, b.score));
-      return day;
-    });
-}
-
 function availableMembers(dateId) {
   return state.members.filter((member) => statusWeight(member.id, dateId) > 0);
 }
@@ -500,8 +483,11 @@ function songMemberIds(songId) {
 }
 
 function statusWeight(memberId, dateId) {
-  const status = state.attendance[memberId]?.[dateId] || '';
-  return weights[status] || 0;
+  return weights[attendanceStatus(memberId, dateId)] || 0;
+}
+
+function attendanceStatus(memberId, dateId) {
+  return state.attendance[memberId]?.[dateId] || '';
 }
 
 function pendingMembers(dateId) {
@@ -545,18 +531,44 @@ function formatDisplayDate(date) {
   return `${date.getMonth() + 1}/${date.getDate()}(${weekdays[date.getDay()]})`;
 }
 
-function createAugustDates() {
-  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-  return Array.from({ length: 31 }, (_, index) => {
-    const day = index + 1;
-    const dayText = String(day).padStart(2, '0');
-    const date = new Date(Date.UTC(2026, 7, day));
-    return {
-      id: `D${dayText}`,
-      label: `8/${day}(${weekdays[date.getUTCDay()]})`,
-      iso: `2026-08-${dayText}`,
-    };
+function createPracticeDates() {
+  return [
+    practiceDate('D06', '2026-08-06', '学校'),
+    practiceDate('D13', '2026-08-13'),
+    practiceDate('D20', '2026-08-20'),
+    practiceDate('D27', '2026-08-27', '学校'),
+    practiceDate('D0903', '2026-09-03'),
+    practiceDate('D0910', '2026-09-10'),
+    practiceDate('D0917', '2026-09-17'),
+    practiceDate('D0924', '2026-09-24'),
+  ];
+}
+
+function practiceDate(id, iso, place = '学校か公民館（未定）') {
+  const date = new Date(`${iso}T00:00:00+09:00`);
+  return {
+    id,
+    label: formatDisplayDate(date),
+    iso,
+    time: '夕方予定',
+    place,
+  };
+}
+
+function datesMatch(current, expected) {
+  if (!Array.isArray(current) || current.length !== expected.length) return false;
+  return expected.every((date, index) => {
+    const currentDate = current[index] || {};
+    return currentDate.id === date.id
+      && currentDate.iso === date.iso
+      && currentDate.label === date.label
+      && currentDate.time === date.time
+      && currentDate.place === date.place;
   });
+}
+
+function dateMeta(date) {
+  return [date.time, date.place].filter(Boolean).join(' / ');
 }
 
 function memberLabel(member) {
