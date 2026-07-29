@@ -271,11 +271,7 @@ function renderHome() {
 
 function renderAttendance() {
   if (!selectedMemberId) {
-    $('attendanceRows').innerHTML = `
-      <div class="empty-note">
-        自分の名前を選ぶと、8月と9月の木曜入力が表示されます。
-      </div>
-    `;
+    $('attendanceRows').innerHTML = '';
     return;
   }
   const current = state.attendance[selectedMemberId] || {};
@@ -319,7 +315,10 @@ function renderSongMatrix() {
       }).join('')}
     </div>`
   )).join('');
-  $('songMatrix').innerHTML = `<div class="matrix-head"><div class="matrix-cell">メンバー</div>${songHeaders}</div>${rows}`;
+  $('songMatrix').innerHTML = `
+    <div class="matrix-head"><div class="matrix-cell">メンバー</div>${songHeaders}</div>
+    <div class="matrix-body">${rows}</div>
+  `;
   $('songMatrix').querySelectorAll('.song-toggle').forEach((button) => {
     button.addEventListener('click', () => saveSongMember(button.dataset.song, button.dataset.member));
   });

@@ -352,12 +352,11 @@ h3 {
 
 .matrix-wrap {
   width: 100%;
-  max-height: min(68vh, 720px);
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: rgba(255, 255, 255, .38);
-  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -365,6 +364,13 @@ h3 {
   display: grid;
   min-width: 760px;
   background: transparent;
+}
+
+.matrix-body {
+  max-height: min(58vh, 620px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .matrix-row,
@@ -392,8 +398,6 @@ h3 {
 }
 
 .matrix-head .matrix-cell {
-  position: sticky;
-  top: 0;
   z-index: 4;
   background: var(--navy-soft);
   color: var(--navy);
