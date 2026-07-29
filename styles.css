@@ -351,32 +351,36 @@ h3 {
 }
 
 .matrix-wrap {
+  position: relative;
   width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
+  max-height: min(68vh, 720px);
+  overflow: auto;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: rgba(255, 255, 255, .38);
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
 }
 
 .song-matrix {
+  position: relative;
   display: grid;
   min-width: 760px;
   background: transparent;
-}
-
-.matrix-body {
-  max-height: min(58vh, 620px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
 }
 
 .matrix-row,
 .matrix-head {
   display: grid;
   grid-template-columns: 150px repeat(6, minmax(88px, 1fr));
+}
+
+.matrix-head {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  align-self: start;
 }
 
 .matrix-cell {
@@ -389,16 +393,12 @@ h3 {
 }
 
 .matrix-cell:first-child {
-  position: sticky;
-  left: 0;
-  z-index: 2;
   place-items: center start;
   background: #fbf1db;
   font-weight: 900;
 }
 
 .matrix-head .matrix-cell {
-  z-index: 4;
   background: var(--navy-soft);
   color: var(--navy);
   font-size: .82rem;
@@ -408,7 +408,6 @@ h3 {
 }
 
 .matrix-head .matrix-cell:first-child {
-  z-index: 6;
   background: var(--navy-soft);
 }
 

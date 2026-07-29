@@ -260,10 +260,7 @@ function renderHome() {
     : '<span class="soft-text">曲メンバーを設定すると表示されます。</span>';
   $('homeRareMembers').innerHTML = rare.length
     ? rare.map((row) => `<span class="member-chip">${memberLabel(row.member)}</span>`).join('')
-    : '';
-  $('homePendingText').textContent = pending.length
-    ? `${pending.length}人がまだ未入力です。分かる日だけで大丈夫。`
-    : 'この日は全員入力済みです。';
+    : '<span class="soft-text">レアメンバーは居ません</span>';
   $('homePendingMembers').innerHTML = pending.slice(0, 10).map((member) => (
     `<div class="member-line">${memberLabel(member)}</div>`
   )).join('') + (pending.length > 10 ? `<div class="member-line">ほか ${pending.length - 10}人</div>` : '');
@@ -317,7 +314,7 @@ function renderSongMatrix() {
   )).join('');
   $('songMatrix').innerHTML = `
     <div class="matrix-head"><div class="matrix-cell">メンバー</div>${songHeaders}</div>
-    <div class="matrix-body">${rows}</div>
+    ${rows}
   `;
   $('songMatrix').querySelectorAll('.song-toggle').forEach((button) => {
     button.addEventListener('click', () => saveSongMember(button.dataset.song, button.dataset.member));
