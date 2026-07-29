@@ -657,6 +657,9 @@ h3 {
 }
 
 .date-rare-songs strong {
+  display: block;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(123, 91, 17, .16);
   color: var(--navy);
   font-weight: 950;
 }
@@ -664,8 +667,6 @@ h3 {
 .date-rare-row {
   display: grid;
   gap: 3px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(123, 91, 17, .16);
 }
 
 .date-rare-row span {

@@ -362,17 +362,15 @@ function renderSelectedDateRanking() {
           </div>
         `).join('')}
       </div>
-      ${focus.length ? `
-        <div class="date-rare-songs">
-          <strong>レアメンバーが参加する曲</strong>
-          ${focus.map((row) => `
-            <div class="date-rare-row">
-              <span>${memberLabel(row.member)}</span>
-              <em>${row.songs.map((song) => song.title).join('、') || '参加曲未設定'}</em>
-            </div>
-          `).join('')}
-        </div>
-      ` : ''}
+      <div class="date-rare-songs">
+        <strong>レアメンバーが参加する曲</strong>
+        ${focus.map((row) => `
+          <div class="date-rare-row">
+            <span>${memberLabel(row.member)}</span>
+            <em>${row.songs.map((song) => song.title).join('、') || '参加曲未設定'}</em>
+          </div>
+        `).join('')}
+      </div>
     </section>
   `;
 }
