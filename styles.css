@@ -583,21 +583,16 @@ h3 {
 }
 
 .date-total-main {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  color: var(--navy);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
 }
 
-.date-total-main span {
-  color: #7b5b11;
-  font-weight: 900;
-}
-
-.date-total-main strong {
-  font-size: 1.25rem;
-  font-weight: 950;
+.date-total-spacer {
+  display: inline-grid;
+  min-width: 42px;
+  min-height: 32px;
 }
 
 .date-song-list {

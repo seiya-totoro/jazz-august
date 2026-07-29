@@ -399,8 +399,11 @@ function renderDateTotalRow(dateId, members) {
       aria-expanded="${expandedDateTotal}"
     >
       <div class="date-total-main">
-        <span>総参加数</span>
-        <strong>${members.length}人</strong>
+        <span class="date-total-spacer" aria-hidden="true"></span>
+        <div>
+          <div class="song-name">参加メンバー</div>
+          <div class="soft-text">${members.length}人</div>
+        </div>
       </div>
       ${expandedDateTotal ? `
         <div class="date-song-members">
