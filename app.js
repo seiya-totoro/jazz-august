@@ -260,7 +260,7 @@ function renderHome() {
     : '<span class="soft-text">曲メンバーを設定すると表示されます。</span>';
   $('homeRareMembers').innerHTML = rare.length
     ? rare.map((row) => `<span class="member-chip">${memberLabel(row.member)}</span>`).join('')
-    : '<span class="soft-text">レアメンバーは居ません</span>';
+    : '<span class="soft-text">レアメンバーは居ません。</span>';
   $('homePendingMembers').innerHTML = pending.slice(0, 10).map((member) => (
     `<div class="member-line">${memberLabel(member)}</div>`
   )).join('') + (pending.length > 10 ? `<div class="member-line">ほか ${pending.length - 10}人</div>` : '');
@@ -363,10 +363,13 @@ function renderSelectedDateRanking() {
         `).join('')}
       </div>
       ${focus.length ? `
-        <div class="date-focus">
-          <strong>注目</strong>
+        <div class="date-rare-songs">
+          <strong>レアメンバーが参加する曲</strong>
           ${focus.map((row) => `
-            <div>${memberLabel(row.member)}: ${row.songs.map((song) => song.title).join('、') || '参加曲未設定'}</div>
+            <div class="date-rare-row">
+              <span>${memberLabel(row.member)}</span>
+              <em>${row.songs.map((song) => song.title).join('、') || '参加曲未設定'}</em>
+            </div>
           `).join('')}
         </div>
       ` : ''}

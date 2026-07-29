@@ -646,13 +646,37 @@ h3 {
   color: #7b5b11;
 }
 
-.date-focus {
+.date-rare-songs {
   display: grid;
-  gap: 6px;
-  padding: 10px;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(233, 196, 106, .58);
   border-radius: 16px;
   background: rgba(255, 240, 189, .45);
   color: #7b5b11;
+}
+
+.date-rare-songs strong {
+  color: var(--navy);
+  font-weight: 950;
+}
+
+.date-rare-row {
+  display: grid;
+  gap: 3px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(123, 91, 17, .16);
+}
+
+.date-rare-row span {
+  color: var(--navy);
+  font-weight: 950;
+}
+
+.date-rare-row em {
+  color: #7b5b11;
+  font-style: normal;
+  font-weight: 850;
 }
 
 .rank-item {
