@@ -211,6 +211,7 @@ h3 {
   gap: 8px;
   align-items: center;
   padding: 8px 11px;
+  white-space: nowrap;
 }
 
 .home-song-row span {
@@ -777,10 +778,18 @@ h3 {
     grid-template-columns: 1fr;
   }
 
-  .home-today-grid,
   .attendance-row {
     grid-template-columns: 150px 1fr;
     align-items: center;
+  }
+
+  .home-today-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, .72fr);
+    align-items: start;
+  }
+
+  .home-today-grid > div:first-child {
+    grid-column: 1 / -1;
   }
 }
 
