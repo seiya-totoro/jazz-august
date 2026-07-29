@@ -537,10 +537,67 @@ h3 {
   font-weight: 950;
 }
 
-.date-rank-total {
-  color: var(--muted);
-  font-size: .9rem;
-  font-weight: 800;
+.date-rank-title-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 10px;
+  align-items: center;
+}
+
+.date-tap-hint {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 9px;
+  border: 1px solid rgba(233, 196, 106, .55);
+  border-radius: 999px;
+  background: rgba(255, 240, 189, .45);
+  color: #7b5b11;
+  font-size: .78rem;
+  font-weight: 850;
+}
+
+.date-total-row {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid rgba(39, 56, 88, .14);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(255, 247, 223, .92), rgba(255, 255, 255, .48)),
+    rgba(255, 255, 255, .34);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.date-total-row:hover,
+.date-total-row.is-open {
+  border-color: rgba(233, 196, 106, .72);
+  box-shadow: 0 10px 24px rgba(39, 56, 88, .08);
+}
+
+.date-total-row:focus-visible {
+  outline: 3px solid rgba(233, 196, 106, .72);
+  outline-offset: 3px;
+}
+
+.date-total-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--navy);
+}
+
+.date-total-main span {
+  color: #7b5b11;
+  font-weight: 900;
+}
+
+.date-total-main strong {
+  font-size: 1.25rem;
+  font-weight: 950;
 }
 
 .date-song-list {

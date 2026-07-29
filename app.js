@@ -68,6 +68,7 @@ let store = null;
 let selectedMemberId = localStorage.getItem(MEMBER_KEY) || '';
 let selectedDateId = nearestDate(seedData.dates).id;
 let expandedDateSongId = '';
+let expandedDateTotal = false;
 let firstRender = true;
 
 const $ = (id) => document.getElementById(id);
@@ -221,6 +222,7 @@ function bindTabs() {
   $('hotDateSelect').addEventListener('change', (event) => {
     selectedDateId = event.target.value;
     expandedDateSongId = '';
+    expandedDateTotal = false;
     renderSelectedDateRanking();
   });
 }
@@ -342,15 +344,19 @@ function renderSelectedDateRanking() {
   const date = state.dates.find((item) => item.id === selectedDateId) || nearestDate(state.dates);
   const scores = songScores(date.id);
   const focus = focusMembers(date.id);
+  const available = availableMembers(date.id);
   $('selectedDateRanking').innerHTML = `
     <section class="date-rank-card">
       <div class="date-rank-head">
         <div>
-          <div class="date-rank-title">${date.label}</div>
+          <div class="date-rank-title-line">
+            <div class="date-rank-title">${date.label}</div>
+            <span class="date-tap-hint">タップしたら参加者見れるよ！</span>
+          </div>
           <div class="date-rank-meta">${dateMeta(date)}</div>
         </div>
-        <div class="date-rank-total">${totalAvailableMembers(date.id)}人</div>
       </div>
+      ${renderDateTotalRow(date.id, available)}
       <div class="date-song-list">
         ${scores.map((song, index) => renderDateSongRow(song, index, date.id)).join('')}
       </div>
@@ -374,6 +380,40 @@ function renderSelectedDateRanking() {
       }
     });
   });
+  const totalRow = $('selectedDateRanking').querySelector('.date-total-row');
+  totalRow?.addEventListener('click', toggleDateTotal);
+  totalRow?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggleDateTotal();
+    }
+  });
+}
+
+function renderDateTotalRow(dateId, members) {
+  return `
+    <div
+      class="date-total-row ${expandedDateTotal ? 'is-open' : ''}"
+      role="button"
+      tabindex="0"
+      aria-expanded="${expandedDateTotal}"
+    >
+      <div class="date-total-main">
+        <span>総参加数</span>
+        <strong>${members.length}人</strong>
+      </div>
+      ${expandedDateTotal ? `
+        <div class="date-song-members">
+          <strong>参加メンバー</strong>
+          <div class="date-member-chips">
+            ${members.length
+              ? members.map((member) => `<span class="date-member-chip">${memberLabel(member)} ${attendanceStatus(member.id, dateId)}</span>`).join('')
+              : '<span class="soft-text">まだ参加メンバーはいません。</span>'}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
 }
 
 function renderDateSongRow(song, index, dateId) {
@@ -409,6 +449,11 @@ function renderDateSongRow(song, index, dateId) {
 
 function toggleDateSong(songId) {
   expandedDateSongId = expandedDateSongId === songId ? '' : songId;
+  renderSelectedDateRanking();
+}
+
+function toggleDateTotal() {
+  expandedDateTotal = !expandedDateTotal;
   renderSelectedDateRanking();
 }
 
