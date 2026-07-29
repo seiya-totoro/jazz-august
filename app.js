@@ -67,6 +67,7 @@ let state = normalizeState(seedData);
 let store = null;
 let selectedMemberId = localStorage.getItem(MEMBER_KEY) || '';
 let selectedDateId = nearestDate(seedData.dates).id;
+let expandedDateSongId = '';
 let firstRender = true;
 
 const $ = (id) => document.getElementById(id);
@@ -219,6 +220,7 @@ function bindTabs() {
   });
   $('hotDateSelect').addEventListener('change', (event) => {
     selectedDateId = event.target.value;
+    expandedDateSongId = '';
     renderSelectedDateRanking();
   });
 }
@@ -350,16 +352,7 @@ function renderSelectedDateRanking() {
         <div class="date-rank-total">${totalAvailableMembers(date.id)}人</div>
       </div>
       <div class="date-song-list">
-        ${scores.map((song, index) => `
-          <div class="date-song-row ${index === 0 ? 'is-first' : ''} ${index === 1 ? 'is-second' : ''}">
-            <span class="date-rank-badge">${index + 1}位</span>
-            <div>
-              <div class="song-name">${song.title}</div>
-              <div class="soft-text">${formatNum(song.available)}人 / ${song.total}人（${Math.round(song.ratio * 100)}%）</div>
-            </div>
-            <div class="count-text">${Math.round(song.ratio * 100)}%</div>
-          </div>
-        `).join('')}
+        ${scores.map((song, index) => renderDateSongRow(song, index, date.id)).join('')}
       </div>
       <div class="date-rare-songs">
         <strong>レアメンバーが参加する曲</strong>
@@ -372,6 +365,51 @@ function renderSelectedDateRanking() {
       </div>
     </section>
   `;
+  $('selectedDateRanking').querySelectorAll('.date-song-row').forEach((row) => {
+    row.addEventListener('click', () => toggleDateSong(row.dataset.songId));
+    row.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggleDateSong(row.dataset.songId);
+      }
+    });
+  });
+}
+
+function renderDateSongRow(song, index, dateId) {
+  const isOpen = expandedDateSongId === song.id;
+  const members = isOpen ? songAvailableMembers(song.id, dateId) : [];
+  return `
+    <div
+      class="date-song-row ${index === 0 ? 'is-first' : ''} ${index === 1 ? 'is-second' : ''} ${isOpen ? 'is-open' : ''}"
+      data-song-id="${song.id}"
+      role="button"
+      tabindex="0"
+      aria-expanded="${isOpen}"
+    >
+      <span class="date-rank-badge">${index + 1}位</span>
+      <div>
+        <div class="song-name">${song.title}</div>
+        <div class="soft-text">${formatNum(song.available)}人 / ${song.total}人（${Math.round(song.ratio * 100)}%）</div>
+      </div>
+      <div class="count-text">${Math.round(song.ratio * 100)}%</div>
+      ${isOpen ? `
+        <div class="date-song-members">
+          <strong>参加メンバー</strong>
+          <div class="date-member-chips">
+            ${members.length
+              ? members.map((member) => `<span class="date-member-chip">${memberLabel(member)} ${attendanceStatus(member.id, dateId)}</span>`).join('')
+              : '<span class="soft-text">まだ参加メンバーはいません。</span>'}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function toggleDateSong(songId) {
+  expandedDateSongId = expandedDateSongId === songId ? '' : songId;
+  renderSelectedDateRanking();
 }
 
 async function saveAttendance(dateId, status) {
@@ -426,6 +464,12 @@ function availableMembers(dateId) {
   return state.members.filter((member) => statusWeight(member.id, dateId) > 0);
 }
 
+function songAvailableMembers(songId, dateId) {
+  return state.members.filter((member) => (
+    Boolean(state.songMembers[songId]?.[member.id]) && statusWeight(member.id, dateId) > 0
+  ));
+}
+
 function totalAvailableMembers(dateId) {
   return availableMembers(dateId).length;
 }
@@ -453,7 +497,7 @@ function focusMembers(dateId) {
     const availableDays = state.dates.filter((date) => statusWeight(member.id, date.id) > 0).length;
     const songs = state.songs.filter((song) => Boolean(state.songMembers[song.id]?.[member.id]));
     return { member, availableDays, songs, canCome: statusWeight(member.id, dateId) > 0 };
-  }).filter((row) => row.canCome && row.availableDays <= 2);
+  }).filter((row) => row.canCome && row.availableDays === 2);
 }
 
 function nearestDate(dates) {

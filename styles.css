@@ -557,6 +557,20 @@ h3 {
   border: 1px solid rgba(39, 56, 88, .12);
   border-radius: 16px;
   background: rgba(255, 255, 255, .34);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+
+.date-song-row:hover,
+.date-song-row.is-open {
+  border-color: rgba(39, 56, 88, .28);
+  box-shadow: 0 10px 24px rgba(39, 56, 88, .08);
+}
+
+.date-song-row:focus-visible {
+  outline: 3px solid rgba(233, 196, 106, .72);
+  outline-offset: 3px;
 }
 
 .date-song-row.is-first {
@@ -598,6 +612,57 @@ h3 {
 
 .date-song-row.is-second .date-rank-badge {
   background: #fff;
+  color: #7b5b11;
+}
+
+.date-song-members {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+  margin-top: 2px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(39, 56, 88, .12);
+}
+
+.date-song-members strong {
+  color: var(--navy);
+  font-size: .9rem;
+  font-weight: 950;
+}
+
+.date-member-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.date-member-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(39, 56, 88, .08);
+  color: var(--navy);
+  font-size: .86rem;
+  font-weight: 850;
+}
+
+.date-song-row.is-first .date-song-members {
+  border-top-color: rgba(255, 247, 223, .2);
+}
+
+.date-song-row.is-first .date-song-members strong {
+  color: #fff7df;
+}
+
+.date-song-row.is-first .date-member-chip {
+  background: rgba(255, 247, 223, .16);
+  color: #fff7df;
+}
+
+.date-song-row.is-second .date-member-chip {
+  background: rgba(255, 255, 255, .7);
   color: #7b5b11;
 }
 
