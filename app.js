@@ -340,7 +340,6 @@ function renderSelectedDateRanking() {
   const date = state.dates.find((item) => item.id === selectedDateId) || nearestDate(state.dates);
   const scores = songScores(date.id);
   const focus = focusMembers(date.id);
-  $('dateInsight').innerHTML = renderDateInsight(date, scores);
   $('selectedDateRanking').innerHTML = `
     <section class="date-rank-card">
       <div class="date-rank-head">
@@ -370,43 +369,6 @@ function renderSelectedDateRanking() {
             <em>${row.songs.map((song) => song.title).join('、') || '参加曲未設定'}</em>
           </div>
         `).join('')}
-      </div>
-    </section>
-  `;
-}
-
-function renderDateInsight(date, scores) {
-  const top = scores[0];
-  const second = scores[1];
-  const totalMembers = state.members.length;
-  const entered = state.members.length - pendingMembers(date.id).length;
-  const full = state.members.filter((member) => attendanceStatus(member.id, date.id) === '◎').length;
-  const partial = state.members.filter((member) => attendanceStatus(member.id, date.id) === '○').length;
-  const maybe = state.members.filter((member) => attendanceStatus(member.id, date.id) === '△').length;
-  const comments = [];
-  if (top && top.available > 0) {
-    comments.push(`${top.title} が一番まとまりやすい日です。`);
-  } else {
-    comments.push('まだ入力が少ないので、曲順は仮の状態です。');
-  }
-  if (top && second && top.ratio - second.ratio < 0.08) {
-    comments.push(`${second.title} もかなり近い候補です。`);
-  }
-  if (partial > 0 || maybe > 0) {
-    comments.push(`○が${partial}人、△が${maybe}人います。時間確認をしておくと安心です。`);
-  }
-  return `
-    <section class="insight-card">
-      <div>
-        <strong>${date.label}</strong>
-        <span>${dateMeta(date)}</span>
-      </div>
-      <p>${comments.join(' ')}</p>
-      <div class="insight-metrics">
-        <span>入力 ${entered}/${totalMembers}人</span>
-        <span>参加 ${full}人</span>
-        <span>一部 ${partial}人</span>
-        <span>△ ${maybe}人</span>
       </div>
     </section>
   `;
