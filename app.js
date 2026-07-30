@@ -579,8 +579,8 @@ function formatDisplayDate(date) {
 function createPracticeDates() {
   return [
     practiceDate('D06', '2026-08-06', '学校'),
-    practiceDate('D13', '2026-08-13'),
-    practiceDate('D20', '2026-08-20'),
+    practiceDate('D13', '2026-08-13', '小金井市公民館貫井北町分館 視聴覚室'),
+    practiceDate('D20', '2026-08-20', '小金井市公民館貫井北町分館 スタジオ・学習室'),
     practiceDate('D27', '2026-08-27', '学校'),
     practiceDate('D0903', '2026-09-03'),
     practiceDate('D0910', '2026-09-10'),
