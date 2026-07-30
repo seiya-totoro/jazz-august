@@ -553,7 +553,7 @@ function focusMembers(dateId) {
     const availableDays = state.dates.filter((date) => statusWeight(member.id, date.id) > 0).length;
     const songs = state.songs.filter((song) => Boolean(state.songMembers[song.id]?.[member.id]));
     return { member, availableDays, songs, canCome: statusWeight(member.id, dateId) > 0 };
-  }).filter((row) => row.canCome && row.availableDays === 2);
+  }).filter((row) => row.canCome && row.availableDays === 1);
 }
 
 function nearestDate(dates) {
