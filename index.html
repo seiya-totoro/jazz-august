@@ -83,7 +83,7 @@
           </div>
           <label class="field-label" for="memberSelect">自分の名前を選んでください</label>
           <select id="memberSelect" class="select"></select>
-          <p class="legend-text">◎=参加 / ○=一部参加(0.1) / △=未確定・かなり短時間 / ×=欠席</p>
+          <p id="attendanceLegend" class="legend-text" hidden>◎=参加 / ○=一部参加(0.1) / △=未確定・かなり短時間 / ×=欠席</p>
           <div id="attendanceRows" class="attendance-list"></div>
         </div>
       </section>
@@ -130,6 +130,6 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="./firebase-config.js"></script>
-  <script type="module" src="./app.js?v=20260730-pre-share-check"></script>
+  <script type="module" src="./app.js?v=20260730-legend-toggle"></script>
 </body>
 </html>

@@ -279,6 +279,7 @@ function renderHome() {
 }
 
 function renderAttendance() {
+  $('attendanceLegend').hidden = !selectedMemberId;
   if (!selectedMemberId) {
     $('attendanceRows').innerHTML = '';
     return;
