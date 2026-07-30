@@ -120,6 +120,17 @@ h3 {
   box-shadow: 0 8px 22px rgba(39, 56, 88, .18);
 }
 
+.sync-warning {
+  margin: -2px 0 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(233, 196, 106, .7);
+  border-radius: 16px;
+  background: rgba(255, 240, 189, .62);
+  color: #7b5b11;
+  font-size: .9rem;
+  font-weight: 850;
+}
+
 .view {
   display: none;
 }

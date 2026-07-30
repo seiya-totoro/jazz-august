@@ -79,6 +79,7 @@ async function boot() {
   bindTabs();
   setLoading(true);
   store = await createStore();
+  setSyncWarning(store.mode !== 'firebase');
   store.subscribe((nextState) => {
     state = normalizeState(nextState);
     if (selectedMemberId && !state.members.some((member) => member.id === selectedMemberId)) {
@@ -133,6 +134,7 @@ async function createFirebaseStore(config) {
     }
   }
   return {
+    mode: 'firebase',
     subscribe(callback) {
       return dbModule.onValue(rootRef, (snap) => callback(snap.val() || seedData));
     },
@@ -147,6 +149,7 @@ function createLocalStore() {
   let localState = normalizeState(saved ? JSON.parse(saved) : seedData);
   const listeners = new Set();
   return {
+    mode: 'local',
     subscribe(callback) {
       listeners.add(callback);
       callback(localState);
@@ -162,7 +165,7 @@ function createLocalStore() {
 }
 
 function normalizeState(input) {
-  const next = structuredClone(input || seedData);
+  const next = cloneData(input || seedData);
   next.members = Array.isArray(next.members) && next.members.length ? next.members : seedData.members;
   next.dates = datesMatch(next.dates, seedData.dates) ? next.dates : seedData.dates;
   next.songs = Array.isArray(next.songs) && next.songs.length ? next.songs : seedData.songs;
@@ -175,6 +178,11 @@ function normalizeState(input) {
     if (!next.songMembers[song.id]) next.songMembers[song.id] = {};
   });
   return next;
+}
+
+function cloneData(value) {
+  if (typeof structuredClone === 'function') return structuredClone(value);
+  return JSON.parse(JSON.stringify(value));
 }
 
 function normalizeSongMembers(input) {
@@ -636,6 +644,11 @@ function setNote(id, text) {
       if (el.textContent === text) el.textContent = '';
     }, 1800);
   }
+}
+
+function setSyncWarning(active) {
+  const warning = $('syncWarning');
+  if (warning) warning.hidden = !active;
 }
 
 function showToast(text) {
