@@ -587,10 +587,10 @@ function formatDisplayDate(date) {
 
 function createPracticeDates() {
   return [
-    practiceDate('D06', '2026-08-06', '学校'),
-    practiceDate('D13', '2026-08-13', '小金井市公民館貫井北町分館 視聴覚室'),
-    practiceDate('D20', '2026-08-20', '小金井市公民館貫井北町分館 スタジオ・学習室'),
-    practiceDate('D27', '2026-08-27', '学校'),
+    practiceDate('D06', '2026-08-06', '17:00~19:00', 'E111'),
+    practiceDate('D13', '2026-08-13', '17:00~19:00', '緑分館･視聴覚室(ピアノ有)'),
+    practiceDate('D20', '2026-08-20', '17:00~19:00', '貫井北分館・学習室Bとスタジオ(ドラム有)'),
+    practiceDate('D27', '2026-08-27', '17:00~19:00', 'ゼミ室3(E203)'),
     practiceDate('D0903', '2026-09-03'),
     practiceDate('D0910', '2026-09-10'),
     practiceDate('D0917', '2026-09-17'),
@@ -598,13 +598,13 @@ function createPracticeDates() {
   ];
 }
 
-function practiceDate(id, iso, place = '学校か公民館（未定）') {
+function practiceDate(id, iso, time = '夕方予定', place = '学校か公民館（未定）') {
   const date = new Date(`${iso}T00:00:00+09:00`);
   return {
     id,
     label: formatDisplayDate(date),
     iso,
-    time: '夕方予定',
+    time,
     place,
   };
 }
